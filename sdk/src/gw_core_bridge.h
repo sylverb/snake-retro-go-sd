@@ -3,9 +3,7 @@
  *
  * Every classic emulator core built outside the main firmware ELF (see
  * cores/_template/) links this bridge instead of talking to
- * firmware symbols directly. It mirrors, in generic form, the trampoline
- * pattern already used for the PICO-8 engine (Core/Src/porting/pico8/
- * p8_firmware_bridge.cpp / docs/PICO8_EXTERNAL_MODULE.md):
+ * firmware symbols directly:
  *
  *   1. gw_core_bridge.c defines a `core_<name>` trampoline for every libc /
  *      G&W-hardware / retro-go function a core is allowed to call.
@@ -18,16 +16,13 @@
  *      call to a firmware address baked in at this firmware's link time.
  *
  * Data globals (structs accessed with `.field`, not simple functions) can't
- * be redirected through a renamed function pointer. For those we go one
- * step further than PICO-8's per-build snapshot and expose them as macros
- * that dereference the ABI's data pointer on every access — this is a few
- * extra cycles per access, but stays correct regardless of the core's own
- * BSS layout (PICO-8 instead relies on its overlay's BSS landing at the
- * *same* address in both builds, which isn't a safe assumption to bake into
- * a generic multi-core SDK). Include this header AFTER the normal firmware
- * headers (common.h, rom_manager.h, gw_malloc.h) in the porting .c file so
- * their own `extern` declarations are parsed first and only later *uses* of
- * the identifiers get macro-substituted.
+ * be redirected through a renamed function pointer. For those we expose them
+ * as macros that dereference the ABI's data pointer on every access — a few
+ * extra cycles per access, but correct regardless of the core's own BSS
+ * layout. Include this header AFTER the normal firmware headers (common.h,
+ * rom_manager.h, gw_malloc.h) in the porting .c file so their own `extern`
+ * declarations are parsed first and only later *uses* of the identifiers get
+ * macro-substituted.
  */
 #pragma once
 
